@@ -4,6 +4,11 @@ This checklist was audited against `program.hy`, the self-hosted UEFI image
 emitter, the documented `KernelBootInfo` ABI, and the AHCI/NVMe QEMU boot
 tests.
 
+The bootloader stops at the kernel handoff. The kernel owns recovery through
+KMon and will later start `/System/Core/System.exec` as PID 1; neither service
+startup nor the userland shell belongs in the bootloader. See
+`../README.md` and `../userland/system/README.md` for that planned path.
+
 Status key: `[x]` implemented and exercised, `[~]` partially complete, and
 `[ ]` not implemented.
 
