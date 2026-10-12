@@ -16,11 +16,14 @@
 
 public class Program {
 	public static void Main(string[] args) {
-		System.Uefi.ClearScreen();
 		System.Console.WriteLine("[BOOT] Australis bootloader started.");
 		System.Console.WriteLine("[BOOT] Loading raw kernel image.");
+
+		// TODO: Check the kernel isnt missing or corrupt. The bootloader should validate the kernel image signature and checksum before leaving boot services.
+
 		System.Kernel.Boot.Load("\\EFI\\AUSTRALIS\\KERNEL.BIN");
 		System.Console.WriteLine("[BOOT] Preparing kernel handoff.");
+		// TODO: Validate kernel image signature and checksum before leaving boot services.
 
 		// This is the final UEFI boot-service call. After it succeeds, firmware
 		// console and driver protocols are no longer available.
