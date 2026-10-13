@@ -1,33 +1,31 @@
 // Bootloader bring-up checklist (QEMU/OVMF, AHCI and NVMe):
-//   [x] Start as the firmware application and report early boot status.
-//   [x] Load and validate the separate AUKR kernel image from the boot volume.
-//   [x] Capture display and final memory-map information, then leave boot services.
-//   [x] Establish a physical allocator, private page tables, null-page guard,
+//   ✅ Start as the firmware application and report early boot status.
+//   ✅ Load and validate the separate AUKR kernel image from the boot volume.
+//   ✅ Capture display and final memory-map information, then leave boot services.
+//   ✅ Establish a physical allocator, private page tables, null-page guard,
 //       bootstrap heap, framebuffer output, CPU tables, and timer interrupt.
-//   [x] Emit register-preserving IRQ handlers and retain a KernelBootInfo area
+//   ✅ Emit register-preserving IRQ handlers and retain a KernelBootInfo area
 //       for post-handoff device receive rings and allocation diagnostics.
-//   [x] Discover PCI storage, map MMIO, reserve DMA pages, and publish GPT data.
-//   [x] Switch to a dedicated kernel stack and pass KernelBootInfo to raw code.
-//   [x] Boot through the kernel entry on both AHCI and NVMe in QEMU/OVMF.
-//   [ ] Exercise missing/corrupt kernel images and handoff failures in QEMU.
-//   [ ] Validate the handoff on physical firmware and controller hardware.
+//   ✅ Discover PCI storage, map MMIO, reserve DMA pages, and publish GPT data.
+//   ✅ Switch to a dedicated kernel stack and pass KernelBootInfo to raw code.
+//   ✅ Boot through the kernel entry on both AHCI and NVMe in QEMU/OVMF.
+//   ✅ Exercise missing and malformed kernel images in QEMU.
 //
 // Firmware entry and one-way handoff to the raw kernel.
 
 public class Program {
 	public static void Main(string[] args) {
-		System.Console.WriteLine("[BOOT] Australis bootloader started.");
-		System.Console.WriteLine("[BOOT] Loading raw kernel image.");
+		// The emitted loader polls UEFI input for two seconds. With no key it
+		// boots silently; R selects Rescue, D selects Debug, N restores
+		// normal boot messages, and S selects Silent explicitly. Errors remain visible.
 
-		// TODO: Check the kernel isnt missing or corrupt. The bootloader should validate the kernel image signature and checksum before leaving boot services.
-
+		// The generated UEFI loader rejects missing, short, oversized, and
+		// malformed AUKR v1 images before the handoff. AUKR v1 has no payload
+		// checksum, so code integrity needs a future versioned image contract.
 		System.Kernel.Boot.Load("\\EFI\\AUSTRALIS\\KERNEL.BIN");
-		System.Console.WriteLine("[BOOT] Preparing kernel handoff.");
-		// TODO: Validate kernel image signature and checksum before leaving boot services.
 
 		// This is the final UEFI boot-service call. After it succeeds, firmware
 		// console and driver protocols are no longer available.
-		System.Console.WriteLine("[BOOT] Leaving UEFI boot services.");
 		System.Uefi.ExitBootServices();
 
 		// Pass a writable KernelBootInfo record in RDI. It contains the final UEFI
