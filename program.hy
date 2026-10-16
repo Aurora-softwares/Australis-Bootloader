@@ -1,15 +1,15 @@
 // Bootloader bring-up checklist (QEMU/OVMF, AHCI and NVMe):
-//   ✅ Start as the firmware application and report early boot status.
-//   ✅ Load and validate the separate AUKR kernel image from the boot volume.
-//   ✅ Capture display and final memory-map information, then leave boot services.
-//   ✅ Establish a physical allocator, private page tables, null-page guard,
+//   🟢 Start as the firmware application and report early boot status.
+//   🟢 Load and validate the separate AUKR kernel image from the boot volume.
+//   🟢 Capture display and final memory-map information, then leave boot services.
+//   🟢 Establish a physical allocator, private page tables, null-page guard,
 //       bootstrap heap, framebuffer output, CPU tables, and timer interrupt.
-//   ✅ Emit register-preserving IRQ handlers and retain a KernelBootInfo area
+//   🟢 Emit register-preserving IRQ handlers and retain a KernelBootInfo area
 //       for post-handoff device receive rings and allocation diagnostics.
-//   ✅ Discover PCI storage, map MMIO, reserve DMA pages, and publish GPT data.
-//   ✅ Switch to a dedicated kernel stack and pass KernelBootInfo to raw code.
-//   ✅ Boot through the kernel entry on both AHCI and NVMe in QEMU/OVMF.
-//   ✅ Exercise missing and malformed kernel images in QEMU.
+//   🟢 Discover PCI storage, map MMIO, reserve DMA pages, and publish GPT data.
+//   🟢 Switch to a dedicated kernel stack and pass KernelBootInfo to raw code.
+//   🟢 Boot through the kernel entry on both AHCI and NVMe in QEMU/OVMF.
+//   🟢 Exercise missing and malformed kernel images in QEMU.
 //
 // Firmware entry and one-way handoff to the raw kernel.
 
