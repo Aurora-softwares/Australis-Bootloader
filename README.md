@@ -24,12 +24,13 @@ Status key: `🟢` implemented and exercised, `🟡` partially complete, and
 | 🟢 | Boot information | Passes the versioned `KernelBootInfo` pointer to `KernelMain.Run` in `RDI`. |
 | 🟢 | UEFI handover | Captures the final map and retries `ExitBootServices` with a fresh map key when required. |
 | 🟢 | Execution transfer | Switches to the dedicated stack and calls the position-independent raw kernel entry. |
-| 🟡 | Error handling | Firmware load, allocation, file, image-validation, memory-map, and GOP failures reach visible error paths. Missing and malformed kernel-image QEMU checks remain to be added. |
+| 🟡 | Error handling | Firmware load, allocation, file, image-validation, memory-map, and GOP failures reach visible error paths. Missing and malformed kernel images are rejected on AHCI and NVMe; injected firmware-service failures remain. |
 | 🟢 | Debug output | `D` enables detailed boot diagnostics; firmware-stage failures are always reported over the UEFI console. |
 
-**Stage 1 handoff result: complete on the positive path.** The handoff reaches
-the kernel and then the userland shell on both AHCI and NVMe QEMU
-configurations. Negative image and firmware-failure injection remain open.
+**Stage 1 handoff result: complete for the tested image paths.** The handoff
+reaches the kernel and userland shell on AHCI and NVMe. Both transports reject
+missing, short, oversized, and malformed AUKR images before handoff. Firmware
+failure injection remains open.
 
 ## Stage 2 - Feature Complete Bootloader
 
@@ -44,10 +45,10 @@ configurations. Negative image and firmware-failure injection remain open.
 | 🔴 | ACPI discovery | Pass the ACPI RSDP location when available. | Recommended |
 | 🔴 | Kernel parameters | Support configurable kernel arguments. | Recommended |
 | 🔴 | Boot configuration | Read boot settings from a configuration file. | Recommended |
-| 🟡 | Debug mode | `D` selects detailed AUKR, GOP, and handoff diagnostics and passes the selected mode to the kernel; automated mode checks are still needed. | Essential |
+| 🟢 | Debug mode | `D` selects detailed AUKR, GOP, and handoff diagnostics and passes the mode to the kernel; `make test-kernel-panic` boots through Debug KMon. | Essential |
 | 🟢 | Silent mode | The default with no key is silent; `S` also selects it explicitly. It suppresses optional bootloader diagnostics and early framebuffer status lines while retaining errors and the interactive console. | Essential |
-| 🟡 | Normal mode | `N` restores early framebuffer status lines; automated mode checks are still needed. | Essential |
-| 🟡 | Error handling | Missing and malformed AUKR images and unavailable GOP have specific firmware error paths; negative-image QEMU checks are still needed. | Essential |
+| 🟢 | Normal mode | `N` restores early framebuffer status lines and passes mode `0`; `make test-boot-modes` verifies the handoff. | Essential |
+| 🟡 | Error handling | `make test-bootloader-negative` rejects missing, short, oversized, and malformed AUKR images and reports unavailable GOP on AHCI and NVMe. Firmware-service failure injection remains. | Essential |
 | 🟢 | UEFI exit | Retries final map capture and exits with the current map key. | Essential |
 | 🟢 | Kernel handover | The documented contract passes `KernelBootInfo` in `RDI` on a dedicated stack. | Essential |
 | 🟢 | Boot device support | Hybrid ISO and disk boot paths pass under OVMF with the supported AHCI and NVMe profiles. Physical USB and internal-drive validation is a production gate. | Essential |
@@ -57,8 +58,10 @@ configurations. Negative image and firmware-failure injection remain open.
 
 **Stage 2 essential result: validation in progress.**
 `make test-rescue-boot` exercises `R` with an EFI-only disk and no HyFS
-partition. The normal serial boot tests cover default boot on AHCI and NVMe.
-Automated `D`, `N`, `S`, malformed-image, and unavailable-GOP checks remain.
+partition. `make test-boot-modes` checks default Silent, `S`, and `N` through
+the kernel boot-mode record; `make test-kernel-panic` exercises `D`.
+`make test-bootloader-negative` checks seven rejected kernel-image cases and
+unavailable GOP on AHCI and NVMe. Firmware-service injection remains.
 ACPI discovery, kernel parameters, file-based configuration, and physical-media
 validation remain recommended or production work.
 
@@ -77,13 +80,13 @@ memory safety; High items provide the remaining validation and resilience.
 | 🟡 | Graceful firmware and hardware failure handling | Missing GOP and invalid kernels are covered; allocation and final handoff failure injection remains incomplete. | Critical |
 | 🟢 | Independence from UEFI boot services after handoff | The kernel uses the captured memory map and GOP information after `ExitBootServices`; QEMU handoff boots pass. | Critical |
 | 🟢 | Versioned boot compatibility | The loader validates AUKR v1 and passes the documented `KernelBootInfo` ABI v7 record. | High |
-| 🟡 | Automated loading and handoff tests | Positive AHCI/NVMe paths pass. Dedicated negative-image and failed-`ExitBootServices` injection targets remain to be added. | High |
+| 🟡 | Automated loading and handoff tests | Positive AHCI/NVMe and negative-image QEMU paths pass. Failed-`ExitBootServices` injection remains. | High |
 | 🔴 | No critical boot or memory corruption defects on supported hardware | The physical hardware matrix has not been tested sufficiently to make this claim. | Critical |
 | 🔴 | Handoff validation | Validate the handoff on physical firmware and controller hardware. | Essential |
 | 🔴 | qemu handoff injection | Inject post-load handoff failures in QEMU. | Recommended |
 
-**Stage 3 result: not complete.** The remaining release gates are failure
-injection, an integrity-bearing kernel image format, and validation on physical
+**Stage 3 result: not complete.** The remaining release gates are firmware-service
+failure injection, an integrity-bearing kernel image format, and validation on physical
 UEFI machines. File-based boot configuration and ACPI discovery remain
 recommended Stage 2 work.
 
