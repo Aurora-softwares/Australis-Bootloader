@@ -9,8 +9,8 @@ KMon and starts `/System/Core/System.exec` as PID 1 on normal boot; neither
 service startup nor the userland shell belongs in the bootloader. See
 `../README.md` and `../userland/system/README.md` for that path.
 
-Status key: `🟢` implemented and exercised, `🟡` partially complete, and
-`🔴` not yet implemented or verified.
+Status key: 🟢 implemented and exercised, 🟡 partially complete, and
+🔴 not yet implemented or verified.
 
 ## Stage 1 - Minimum Viable Bootloader
 
