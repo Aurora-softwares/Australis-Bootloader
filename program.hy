@@ -81,9 +81,11 @@ public class Program {
 		// area, command table, and GPT buffer in this contiguous DMA allocation.
 		// It validates the MBR, GPT header, and primary entry array before it
 		// publishes the first GPT partition in KernelBootInfo.
-		// Keep the first sixteen pages for storage bootstrap queues and reserve
-		// another forty-eight for runtime-owned USB rings and transfer buffers.
+		// The two literal slices form one contiguous low-memory reservation.
+		// Storage uses the first sixteen pages of the combined interval;
+		// USB and GPU share the remaining pages after boot.
 		System.Kernel.Dma.AllocatePages(64);
+		System.Kernel.Dma.AllocatePages(1024);
 		System.Kernel.Storage.Initialize();
 		// Switch to the kernel's own stack and enter the raw code image.
 		// The kernel enables interrupts and owns the idle loop from here.
