@@ -86,6 +86,7 @@ public class Program {
 		// USB and GPU share the remaining pages after boot.
 		System.Kernel.Dma.AllocatePages(64);
 		System.Kernel.Dma.AllocatePages(1024);
+		System.Kernel.Dma.AllocatePages(1024);
 		System.Kernel.Storage.Initialize();
 		// Switch to the kernel's own stack and enter the raw code image.
 		// The kernel enables interrupts and owns the idle loop from here.
