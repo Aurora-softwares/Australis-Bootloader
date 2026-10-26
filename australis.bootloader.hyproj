@@ -1,5 +1,5 @@
 format = 2
-name = "Australis.Bootloader"
+name = "Australis Bootloader"
 version = "0.0.1"
 type = "efi"
 output = "EFI/BOOT/BOOTX64.EFI"
